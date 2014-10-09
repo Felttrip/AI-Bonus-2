@@ -1,3 +1,6 @@
+//libs
+use std::collections
+
 struct game{
 	tiles: [int]
 
