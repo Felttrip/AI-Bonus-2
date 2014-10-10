@@ -1,17 +1,17 @@
- //libs
- use std::collections::PriorityQueue;
- use std::vec;
- use std::rand;
- use std::io;
- use std::num;
+//libs
+use std::collections::PriorityQueue;
+use std::vec;
+use std::rand;
+use std::io;
+use std::num;
  
- static size: int = 3;
+static size: int = 3;
  
 struct gameState{
 	board : [[uint, ..3], ..3],
 	moves_made : uint,
 	zero_pos : (int, int),
-	manhattenDistance : uint
+	inverseManhattenDistance : int
 }
  
 impl Eq for gameState{
@@ -20,17 +20,17 @@ impl Eq for gameState{
 
 impl PartialEq for gameState{
 	fn eq(&self, other: &gameState) -> bool{
-		return self.manhattenDistance == other.manhattenDistance; 
+		return self.inverseManhattenDistance == other.inverseManhattenDistance; 
 	}
 
 	fn ne(&self, other: &gameState) -> bool{
-		return self.manhattenDistance != other.manhattenDistance;
+		return self.inverseManhattenDistance != other.inverseManhattenDistance;
 	}
 }
 
 impl Ord for gameState {
 	fn cmp(&self, other: &gameState) -> Ordering{
-		self.manhattenDistance.cmp(&other.manhattenDistance)
+		self.inverseManhattenDistance.cmp(&other.inverseManhattenDistance)
 	}
 }
 
@@ -42,7 +42,7 @@ impl PartialOrd for gameState {
 
 impl Clone for gameState {
 	fn clone(&self) -> gameState{
-		gameState { board: self.board, moves_made: self.moves_made, zero_pos : self.zero_pos, manhattenDistance : self.manhattenDistance }
+		gameState { board: self.board, moves_made: self.moves_made, zero_pos : self.zero_pos, inverseManhattenDistance : self.inverseManhattenDistance }
 	}
  }
  
@@ -51,6 +51,8 @@ impl Clone for gameState {
  	game.zero_pos = (2i,2i);
  	game = generatePuzzle();
 
+ 	manhattenDistance(&game);
+ 	println!("{}", game.inverseManhattenDistance);
  }
  
  fn generatePuzzle() -> gameState{
@@ -59,7 +61,7 @@ impl Clone for gameState {
 		board: [[1,2,3], [4,5,6], [7,8,0]],
 		zero_pos: (2i, 2i),
 		moves_made: 0u,
-		manhattenDistance: 0u
+		inverseManhattenDistance: 0i
  	};
  
  
@@ -73,8 +75,8 @@ impl Clone for gameState {
  
 	//tile that will be selected
 	let mut tileToMove :(uint,uint) = (0,0);
-	let mut dist : int = manhattenDistance(&puzzle);
-	println!("{}", dist)
+	manhattenDistance(&puzzle);
+
  
 	for x in range(0i, num_rand_moves as int){
 		validMoves = moveableTiles(puzzle.zero_pos);
@@ -87,6 +89,8 @@ impl Clone for gameState {
 		puzzle.zero_pos = (tileToMove.val0() as int, tileToMove.val1() as int);
 		validMoves = Vec::new();
 	}
+
+
 	Astar(&puzzle);
  
  	return puzzle;
@@ -102,7 +106,7 @@ fn Astar( initialState : & gameState ) -> int{
 
 }
 /* Return an inverse since the PQ is max only */
-fn manhattenDistance( puzzle  : & gameState  ) -> int{
+fn manhattenDistance( puzzle  : & gameState  ){
 
 	let mut i : int = 0;
 	let mut j : int = 0;
@@ -121,7 +125,10 @@ fn manhattenDistance( puzzle  : & gameState  ) -> int{
 		}
 	}
 
-	return dist * -1;
+	//puzzle.inverseManhattenDistance = dist * -1;
+
+	println!("{}", dist * -1);
+
 }
 /* If there are no valid moves, -1 is returned */
 fn moveableTiles( zero_pos : (int, int) ) -> Vec<(uint, uint)>{
