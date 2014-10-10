@@ -67,3 +67,30 @@ fn moveableTiles( zero_pos : (int, int) ) -> Vec<(uint, uint)>{
 
 	return valid_moves;
 }
+
+
+fn Astar( puzzle : gameState ){
+
+}
+
+fn manhattenDistance( puzzle : gameState ) -> uint{
+
+	let mut i : uint = 0;
+	let mut j : uint = 0;
+	let mut dist : uint = 0;
+
+	/* For every tile */
+	for i in (0u, size){
+		for j in (0u, size){
+			let cur_value = puzzle.board[i][j];
+			if(cur_value] == 0){
+				continue;
+			}
+			let final_pos : (uint, uint) = (cur_value/size, cur_value % size);
+			dist = dist + abs(final_pos.val0() - i) + abs(final_pos.val1() - j);
+			println!("{}", dist);
+		}
+	}
+
+	return dist;
+}
