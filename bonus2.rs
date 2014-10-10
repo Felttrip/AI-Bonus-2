@@ -3,6 +3,8 @@ use std::collections;
 use std::vec;
 use std::rand;
 use std::io;
+use std::num;
+
 
 static size: uint = 3;
 
@@ -15,20 +17,21 @@ struct gameState{
 
 fn main() {
 	
-	let mut game : gameState;
-	game.zero_pos = (2u,2u);
-	game = generatePuzzle(game);
+	let mut game : gameState = generatePuzzle();
 
 }
 
-fn generatePuzzle(game : gameState) -> gameState{
+fn generatePuzzle() -> gameState{
+
 
 	let mut board : Vec<Vec<uint>> = vec![vec![1,2,3], vec![4,5,6], vec![7,8,0]];
 	let mut num_rand_moves = (rand::random::<uint>() % 500u) + 1u;
 
-	validMove(game.zero_pos);
+	//validMove(game.zero_pos);
+	manhattenDistance
 
-	return board;
+
+	return game;
 }
 
 /* If there are no valid moves, -1 is returned */
@@ -55,3 +58,32 @@ fn validMove( zero_pos : (uint, uint) ) -> Vec<(uint, uint)>{
 
 	return valid_moves;
 }
+
+fn Astar( puzzle : gameState ){
+
+}
+
+fn manhattenDistance( puzzle : gameState ) -> uint{
+
+	let mut i : uint = 0;
+	let mut j : uint = 0;
+	let mut dist : uint = 0;
+
+	/* For every tile */
+	for i in (0u, size){
+		for j in (0u, size){
+			let cur_value = puzzle.board[i][j];
+			if(cur_value] == 0){
+				continue;
+			}
+			let final_pos : (uint, uint) = (cur_value/size, cur_value % size);
+			dist = dist + abs(final_pos.val0() - i) + abs(final_pos.val1() - j);
+			println!("{}", dist);
+		}
+	}
+
+	return dist;
+}
+
+
+
