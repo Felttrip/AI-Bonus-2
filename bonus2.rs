@@ -3,6 +3,7 @@ use std::collections;
 use std::vec;
 use std::rand;
 use std::io;
+use std::num;
 
 static size: int = 3;
 
