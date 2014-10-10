@@ -1,48 +1,128 @@
-//libs
-use std::collections;
-use std::vec;
-use std::rand;
-use std::io;
-use std::num;
-
-static size: int = 3;
-
-
+ //libs
+ use std::collections::PriorityQueue;
+ use std::vec;
+ use std::rand;
+ use std::io;
+ use std::num;
+ 
+ static size: int = 3;
+ 
 struct gameState{
-	board : Vec<Vec<uint>>,
+	board : [[uint, ..3], ..3],
 	moves_made : uint,
-	zero_pos : (int, int)
+	zero_pos : (int, int),
+	manhattenDistance : uint
 }
-
-fn main() {
-
-	let mut game : gameState;
-	game.zero_pos = (2i,2i);
-	game = generatePuzzle();
+ 
+impl Eq for gameState{
 
 }
 
-fn generatePuzzle() -> gameState{
-	//new game state
-	let mut puzzle = gameState{
-		board: vec![vec![1,2,3], vec![4,5,6], vec![7,8,0]],
-		zero_pos: (1i, 1i),
-		moves_made: 0u
-	};
+impl PartialEq for gameState{
+	fn eq(&self, other: &gameState) -> bool{
+		return self.manhattenDistance == other.manhattenDistance; 
+	}
 
+	fn ne(&self, other: &gameState) -> bool{
+		return self.manhattenDistance != other.manhattenDistance;
+	}
+}
 
-	//find random number of moves to make
-	let mut num_rand_moves = (rand::random::<uint>() % 500u) + 1u;
+impl Ord for gameState {
+	fn cmp(&self, other: &gameState) -> Ordering{
+		self.manhattenDistance.cmp(&other.manhattenDistance)
+	}
+}
 
+impl PartialOrd for gameState {
+    fn partial_cmp(&self, other: &gameState) -> Option<Ordering>{
+    	Some(self.cmp(other))
+    }
+}
+
+impl Clone for gameState {
+	fn clone(&self) -> gameState{
+		gameState { board: self.board, moves_made: self.moves_made, zero_pos : self.zero_pos, manhattenDistance : self.manhattenDistance }
+	}
+ }
+ 
+ fn main() {
+ 	let mut game : gameState;
+ 	game.zero_pos = (2i,2i);
+ 	game = generatePuzzle();
+
+ }
+ 
+ fn generatePuzzle() -> gameState{
+ 	//new game state
+ 	let mut puzzle = gameState{
+		board: [[1,2,3], [4,5,6], [7,8,0]],
+		zero_pos: (2i, 2i),
+		moves_made: 0u,
+		manhattenDistance: 0u
+ 	};
+ 
+ 
 	//scramble the board
-	//for x in range(0i, 10i){
-		//get valid moves
-		println!("Valid moves = {}",moveableTiles(puzzle.zero_pos));
-//	}
+ 	//find random number of moves to make
+ 	let mut num_rand_moves = (rand::random::<uint>() % 500u) + 1u;
+ 
+	//valid moves
+	let mut validMoves : Vec<(uint, uint)>;
+	//scramble the board
+ 
+	//tile that will be selected
+	let mut tileToMove :(uint,uint) = (0,0);
+	let mut dist : int = manhattenDistance(&puzzle);
+	println!("{}", dist)
+ 
+	for x in range(0i, num_rand_moves as int){
+		validMoves = moveableTiles(puzzle.zero_pos);
+		tileToMove = validMoves[rand::random::<uint>()%validMoves.len()];
+		//move tile
+		//assign the value of the of the tile to move to the location of the 0 tile
+		puzzle.board[(puzzle.zero_pos.val0()) as uint][(puzzle.zero_pos.val1()) as uint] = puzzle.board[tileToMove.val0()][tileToMove.val1()];
+		//move the zero tile to the old tile's location
+		puzzle.board[tileToMove.val0()][tileToMove.val1()] = 0u;
+		puzzle.zero_pos = (tileToMove.val0() as int, tileToMove.val1() as int);
+		validMoves = Vec::new();
+	}
+	Astar(&puzzle);
+ 
+ 	return puzzle;
+ }
+ 
+fn Astar( initialState : & gameState ) -> int{
+	
+	/* Path cost */
+	let mut path_cost : int;
+	let mut pq : PriorityQueue<gameState> = PriorityQueue::new();
 
-	return puzzle;
+	return 1;
+
 }
+/* Return an inverse since the PQ is max only */
+fn manhattenDistance( puzzle  : & gameState  ) -> int{
 
+	let mut i : int = 0;
+	let mut j : int = 0;
+	let mut dist :  int = 0;
+
+	/* For every tile */
+	for i in range(0i, (size)){
+		for j in range(0i, (size)){
+			let cur_value = puzzle.board[i as uint][j as uint];
+			if(cur_value == 0){
+				continue;
+			}
+			let final_pos : (int, int) = (((cur_value -1) /(size) as uint) as int, (((cur_value - 1) % (size) as uint)) as int);
+			dist = dist + num::abs::<int>(final_pos.val0() - i) + num::abs::<int>(final_pos.val1() - j);
+			println!("dist = {}, x val {}, y val {}, cur_val {}", dist, num::abs::<int>(final_pos.val0() - i), num::abs::<int>(final_pos.val1() - j), cur_value);
+		}
+	}
+
+	return dist * -1;
+}
 /* If there are no valid moves, -1 is returned */
 fn moveableTiles( zero_pos : (int, int) ) -> Vec<(uint, uint)>{
 
@@ -65,32 +145,6 @@ fn moveableTiles( zero_pos : (int, int) ) -> Vec<(uint, uint)>{
 		valid_moves.push(((zero_pos.val0()) as uint,(zero_pos.val1()-1) as uint));
 	}
 
+
 	return valid_moves;
-}
-
-
-fn Astar( puzzle : gameState ){
-
-}
-
-fn manhattenDistance( puzzle : gameState ) -> uint{
-
-	let mut i : uint = 0;
-	let mut j : uint = 0;
-	let mut dist : uint = 0;
-
-	/* For every tile */
-	for i in (0u, size){
-		for j in (0u, size){
-			let cur_value = puzzle.board[i][j];
-			if(cur_value] == 0){
-				continue;
-			}
-			let final_pos : (uint, uint) = (cur_value/size, cur_value % size);
-			dist = dist + abs(final_pos.val0() - i) + abs(final_pos.val1() - j);
-			println!("{}", dist);
-		}
-	}
-
-	return dist;
 }
