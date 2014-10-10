@@ -1,17 +1,50 @@
 //libs
-use std::collections;
+use std::collections::PriorityQueue;
 use std::vec;
 use std::rand;
 use std::io;
 use std::num;
 
+
 static size: int = 3;
 
-
 struct gameState{
-	board : Vec<Vec<uint>>,
+	board : [[uint, ..3], ..3],
 	moves_made : uint,
-	zero_pos : (int, int)
+	zero_pos : (int, int),
+	manhattenDistance : uint
+}
+
+impl Eq for gameState{
+
+}
+
+impl PartialEq for gameState{
+	fn eq(&self, other: &gameState) -> bool{
+		return self.manhattenDistance == other.manhattenDistance; 
+	}
+
+	fn ne(&self, other: &gameState) -> bool{
+		return self.manhattenDistance != other.manhattenDistance;
+	}
+}
+
+impl Ord for gameState {
+	fn cmp(&self, other: &gameState) -> Ordering{
+		self.manhattenDistance.cmp(&other.manhattenDistance)
+	}
+}
+
+impl PartialOrd for gameState {
+    fn partial_cmp(&self, other: &gameState) -> Option<Ordering>{
+    	Some(self.cmp(other))
+    }
+}
+
+impl Clone for gameState {
+	fn clone(&self) -> gameState{
+		gameState { board: self.board, moves_made: self.moves_made, zero_pos : self.zero_pos, manhattenDistance : self.manhattenDistance }
+	}
 }
 
 fn main() {
@@ -25,9 +58,10 @@ fn main() {
 fn generatePuzzle() -> gameState{
 	//new game state
 	let mut puzzle = gameState{
-		board: vec![vec![1,2,3], vec![4,5,6], vec![7,8,0]],
+		board: vec![vec![4,1,3], vec![0,2,5], vec![7,8,6]],
 		zero_pos: (1i, 1i),
-		moves_made: 0u
+		moves_made: 0u,
+		manhattenDistance: 0u
 	};
 
 
@@ -39,6 +73,11 @@ fn generatePuzzle() -> gameState{
 		//get valid moves
 		println!("Valid moves = {}",moveableTiles(puzzle.zero_pos));
 //	}
+
+	let mut dist : int = manhattenDistance(&puzzle);
+	println!("{}", dist)
+
+	Astar(&puzzle);
 
 	return puzzle;
 }
@@ -65,32 +104,40 @@ fn moveableTiles( zero_pos : (int, int) ) -> Vec<(uint, uint)>{
 		valid_moves.push(((zero_pos.val0()) as uint,(zero_pos.val1()-1) as uint));
 	}
 
+
 	return valid_moves;
 }
 
 
-fn Astar( puzzle : gameState ){
+fn Astar( initialState : & gameState ) -> int{
+	
+	/* Path cost */
+	let mut path_cost : int;
+	let mut pq : PriorityQueue<gameState> = PriorityQueue::new();
+
+	return 1;
 
 }
 
-fn manhattenDistance( puzzle : gameState ) -> uint{
+/* Return an inverse since the PQ is max only */
+fn manhattenDistance( puzzle  : & gameState  ) -> int{
 
-	let mut i : uint = 0;
-	let mut j : uint = 0;
-	let mut dist : uint = 0;
+	let mut i : int = 0;
+	let mut j : int = 0;
+	let mut dist :  int = 0;
 
 	/* For every tile */
-	for i in (0u, size){
-		for j in (0u, size){
-			let cur_value = puzzle.board[i][j];
-			if(cur_value] == 0){
+	for i in range(0i, (size)){
+		for j in range(0i, (size)){
+			let cur_value = puzzle.board[i as uint][j as uint];
+			if(cur_value == 0){
 				continue;
 			}
-			let final_pos : (uint, uint) = (cur_value/size, cur_value % size);
-			dist = dist + abs(final_pos.val0() - i) + abs(final_pos.val1() - j);
-			println!("{}", dist);
+			let final_pos : (int, int) = (((cur_value -1) /(size) as uint) as int, (((cur_value - 1) % (size) as uint)) as int);
+			dist = dist + num::abs::<int>(final_pos.val0() - i) + num::abs::<int>(final_pos.val1() - j);
+			println!("dist = {}, x val {}, y val {}, cur_val {}", dist, num::abs::<int>(final_pos.val0() - i), num::abs::<int>(final_pos.val1() - j), cur_value);
 		}
 	}
 
-	return dist;
+	return dist * -1;
 }
