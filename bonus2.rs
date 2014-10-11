@@ -51,8 +51,8 @@ impl Clone for gameState {
  	game.zero_pos = (2i,2i);
  	game = generatePuzzle();
 
- 	manhattenDistance(&game);
- 	println!("{}", game.inverseManhattenDistance);
+ 	Astar(game);
+
  }
  
  fn generatePuzzle() -> gameState{
@@ -75,7 +75,7 @@ impl Clone for gameState {
  
 	//tile that will be selected
 	let mut tileToMove :(uint,uint) = (0,0);
-	manhattenDistance(&puzzle);
+	manhattenDistance(puzzle);
 
  
 	for x in range(0i, num_rand_moves as int){
@@ -90,23 +90,27 @@ impl Clone for gameState {
 		validMoves = Vec::new();
 	}
 
-
-	Astar(&puzzle);
- 
  	return puzzle;
  }
  
-fn Astar( initialState : & gameState ) -> int{
+fn Astar( initialState : gameState ) -> int{
 	
 	/* Path cost */
 	let mut path_cost : int;
 	let mut pq : PriorityQueue<gameState> = PriorityQueue::new();
 
+	/* We don't need explored */
+
+	/* generate new states */
+	//pq.push(generateSuccessorStates(initialState));
+
+	generateSuccessorStates(initialState);
+
 	return 1;
 
 }
 /* Return an inverse since the PQ is max only */
-fn manhattenDistance( puzzle  : & gameState  ){
+fn manhattenDistance( puzzle  : gameState  ) -> int{
 
 	let mut i : int = 0;
 	let mut j : int = 0;
@@ -128,8 +132,43 @@ fn manhattenDistance( puzzle  : & gameState  ){
 	//puzzle.inverseManhattenDistance = dist * -1;
 
 	println!("{}", dist * -1);
+	return dist;
 
 }
+
+fn generateSuccessorStates( parentState : gameState ) -> Vec<gameState>{
+
+	let valid_moves : Vec<(uint, uint)> = moveableTiles(parentState.zero_pos);
+	let mut successor_states : Vec<gameState> = Vec::new();
+
+	for x in range(0u, valid_moves.len()){
+		successor_states.push(makeMove( parentState, (valid_moves[x].val0() as int, valid_moves[x].val1() as int)));
+	}
+
+	for x in range(0u, successor_states.len()){
+		println!("{}", successor_states[x].inverseManhattenDistance);
+	}
+
+	return successor_states; 
+}
+
+fn makeMove( init_state : gameState,  new_zero : (int, int) ) -> gameState{
+
+	let mut new_state = gameState{
+		board : init_state.board,
+		zero_pos : new_zero,
+		moves_made : 1 + init_state.moves_made,
+		inverseManhattenDistance : 0,
+	};
+
+	let previous_value : uint = new_state.board[new_zero.val0() as uint][new_zero.val1() as uint];
+	new_state.board[new_zero.val0() as uint][new_zero.val1() as uint] = 0;
+	new_state.board[init_state.zero_pos.val0() as uint][init_state.zero_pos.val1() as uint] = previous_value;
+	new_state.inverseManhattenDistance = manhattenDistance(new_state);
+
+	return new_state;
+}
+
 /* If there are no valid moves, -1 is returned */
 fn moveableTiles( zero_pos : (int, int) ) -> Vec<(uint, uint)>{
 
