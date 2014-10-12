@@ -1,5 +1,6 @@
 //libs
 use std::collections::PriorityQueue;
+use std::collections::TrieSet;
 use std::vec;
 use std::rand;
 use std::io;
@@ -11,7 +12,8 @@ struct gameState{
 	board : [[uint, ..3], ..3],
 	moves_made : uint,
 	zero_pos : (int, int),
-	inverseManhattenDistance : int
+	inverseManhattenDistance : int,
+	state_id : uint
 }
  
 impl Eq for gameState{
@@ -42,16 +44,16 @@ impl PartialOrd for gameState {
 
 impl Clone for gameState {
 	fn clone(&self) -> gameState{
-		gameState { board: self.board, moves_made: self.moves_made, zero_pos : self.zero_pos, inverseManhattenDistance : self.inverseManhattenDistance }
+		gameState { board: self.board, moves_made: self.moves_made, zero_pos : self.zero_pos, inverseManhattenDistance : self.inverseManhattenDistance, state_id : self.state_id }
 	}
  }
  
  fn main() {
  	let mut game : gameState;
- 	game.zero_pos = (2i,2i);
  	game = generatePuzzle();
+ 	let mut moves_needed = Astar(game);
+ 	println!("{}", moves_needed);
 
- 	Astar(game);
 
  }
  
@@ -61,10 +63,10 @@ impl Clone for gameState {
 		board: [[1,2,3], [4,5,6], [7,8,0]],
 		zero_pos: (2i, 2i),
 		moves_made: 0u,
-		inverseManhattenDistance: 0i
+		inverseManhattenDistance: 0i,
+		state_id: 123456780u
  	};
- 
- 
+
 	//scramble the board
  	//find random number of moves to make
  	let mut num_rand_moves = (rand::random::<uint>() % 500u) + 1u;
@@ -87,28 +89,94 @@ impl Clone for gameState {
 		//move the zero tile to the old tile's location
 		puzzle.board[tileToMove.val0()][tileToMove.val1()] = 0u;
 		puzzle.zero_pos = (tileToMove.val0() as int, tileToMove.val1() as int);
+		puzzle.state_id = generateStateId(puzzle);
 		validMoves = Vec::new();
 	}
 
  	return puzzle;
  }
  
-fn Astar( initialState : gameState ) -> int{
+/* 
+ *	A star returns the number of moves needed to solve the problem
+ *  -1 indicates that no solution exists.
+ */
+
+fn Astar( initialState : gameState ) -> uint{
 	
 	/* Path cost */
 	let mut path_cost : int;
 	let mut pq : PriorityQueue<gameState> = PriorityQueue::new();
+    let mut explored = TrieSet::new();
+	pq.push(initialState);
 
-	/* We don't need explored */
+	loop{
+		if(pq.len() == 0){
+			return -1;
+		}
+		let mut next = pq.pop();
+		let active_state = next.unwrap();
+		if( isGoal(active_state) ){
+			return active_state.moves_made;
+		}
+		explored.insert(active_state.state_id);
+		let mut next_states : Vec<gameState> =  generateSuccessorStates(active_state);
+		for x in range(0u, next_states.len()){
+			if(explored.contains(&next_states[x].state_id)){
+				continue;
+			}
 
-	/* generate new states */
-	//pq.push(generateSuccessorStates(initialState));
+			/*had to do this */
+			let mut puzzle = gameState{
+				board: next_states[x].board,
+				zero_pos: next_states[x].zero_pos,
+				moves_made: next_states[x].moves_made,
+				inverseManhattenDistance: next_states[x].inverseManhattenDistance - next_states[x].moves_made as int,
+				state_id: next_states[x].state_id
+ 			};
 
-	generateSuccessorStates(initialState);
+ 			/*wanted to do this, and to push next_states[x] */
+			//next_states[x].inverseManhattenDistance = next_states[x].inverseManhattenDistance - next_states[x].moves_made as int;
+			pq.push(puzzle);
+		}
+	}
+}
 
-	return 1;
+fn generateStateId(state : gameState) -> uint{
+	
+	let mut id : uint = 0;
+
+	for x in range(0u, 3u){
+		for y in range(0u, 3u){
+			id += state.board[x][y] * num::pow::<uint>(10u,  (x * 3) + y % 3);
+		} 
+	}
+	return id;
+}
+
+fn printBoard( board: gameState ){
+
+	for x in range(0u, 3u){
+		for y in range(0u, 3u){
+			println!("{}", board.board[x][y]);
+		} 
+	}
 
 }
+
+fn isGoal( testState: gameState ) -> bool{
+
+	for x in range(0u, 2u){
+		for y in range(0u,2u){
+			if(testState.board[x][y] != (x*3) + 1 + (y%3) ){
+				println!("not a goal");
+				return false;
+			}
+		}
+	}
+	println!("is a goal");
+	return true;
+}
+
 /* Return an inverse since the PQ is max only */
 fn manhattenDistance( puzzle  : gameState  ) -> int{
 
@@ -125,18 +193,18 @@ fn manhattenDistance( puzzle  : gameState  ) -> int{
 			}
 			let final_pos : (int, int) = (((cur_value -1) /(size) as uint) as int, (((cur_value - 1) % (size) as uint)) as int);
 			dist = dist + num::abs::<int>(final_pos.val0() - i) + num::abs::<int>(final_pos.val1() - j);
-			println!("dist = {}, x val {}, y val {}, cur_val {}", dist, num::abs::<int>(final_pos.val0() - i), num::abs::<int>(final_pos.val1() - j), cur_value);
+			//println!("dist = {}, x val {}, y val {}, cur_val {}", dist, num::abs::<int>(final_pos.val0() - i), num::abs::<int>(final_pos.val1() - j), cur_value);
 		}
 	}
 
 	//puzzle.inverseManhattenDistance = dist * -1;
 
-	println!("{}", dist * -1);
+	//println!("{}", dist * -1);
 	return dist;
 
 }
 
-fn generateSuccessorStates( parentState : gameState ) -> Vec<gameState>{
+fn generateSuccessorStates( parentState : gameState ) ->  Vec<gameState>{
 
 	let valid_moves : Vec<(uint, uint)> = moveableTiles(parentState.zero_pos);
 	let mut successor_states : Vec<gameState> = Vec::new();
@@ -159,12 +227,14 @@ fn makeMove( init_state : gameState,  new_zero : (int, int) ) -> gameState{
 		zero_pos : new_zero,
 		moves_made : 1 + init_state.moves_made,
 		inverseManhattenDistance : 0,
+		state_id : 0,
 	};
 
 	let previous_value : uint = new_state.board[new_zero.val0() as uint][new_zero.val1() as uint];
 	new_state.board[new_zero.val0() as uint][new_zero.val1() as uint] = 0;
 	new_state.board[init_state.zero_pos.val0() as uint][init_state.zero_pos.val1() as uint] = previous_value;
 	new_state.inverseManhattenDistance = manhattenDistance(new_state);
+	new_state.state_id = generateStateId(new_state);
 
 	return new_state;
 }
