@@ -96,6 +96,28 @@ impl Clone for gameState {
  	return puzzle;
  }
 
+/* HillClimb returns the number of moves needed to solve the problem
+* a -1 indicates that no solution exists.
+*/
+
+fn HillClimb(initialState : gameState) -> int{
+	//set up path cost and initial states
+	let mut path_cost : int;
+	let mut availablePaths : PriorityQueue<gameState> = PriorityQueue::new();
+	availablePaths.push(initialState);
+
+	loop{
+		//no solution if queue is empty
+		if(availablePaths.len() ==0){
+			return -1;
+		}
+
+		let activeState = availablePaths.pop().unwrap();
+		printBoard(activeState);
+	}
+
+}
+
 /*
  *	A star returns the number of moves needed to solve the problem
  *  -1 indicates that no solution exists.
