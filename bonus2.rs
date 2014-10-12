@@ -157,9 +157,11 @@ fn printBoard( board: gameState ){
 
 	for x in range(0u, 3u){
 		for y in range(0u, 3u){
-			println!("{}", board.board[x][y]);
+			print!("{}", board.board[x][y]);
 		}
+		print!("\n");
 	}
+	print!("\n");
 
 }
 
