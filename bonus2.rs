@@ -51,8 +51,9 @@ impl Clone for gameState {
  fn main() {
  	let mut game : gameState;
  	game = generatePuzzle();
- 	let mut moves_needed = Astar(game);
- 	println!("{}", moves_needed);
+ 	//let mut moves_needed = Astar(game);
+ 	let mut hill_moves_needed = HillClimb(game);
+	println!("{}", hill_moves_needed);
 
 
  }
@@ -77,7 +78,6 @@ impl Clone for gameState {
 
 	//tile that will be selected
 	let mut tileToMove :(uint,uint) = (0,0);
-	puzzle.inverseManhattenDistance = manhattenDistance(puzzle);
 
 
 	for x in range(0i, num_rand_moves as int){
@@ -89,10 +89,10 @@ impl Clone for gameState {
 		//move the zero tile to the old tile's location
 		puzzle.board[tileToMove.val0()][tileToMove.val1()] = 0u;
 		puzzle.zero_pos = (tileToMove.val0() as int, tileToMove.val1() as int);
-		puzzle.state_id = generateStateId(puzzle);
 		validMoves = Vec::new();
 	}
-
+	puzzle.state_id = generateStateId(puzzle);
+	puzzle.inverseManhattenDistance = manhattenDistance(puzzle);
  	return puzzle;
  }
 
@@ -101,21 +101,51 @@ impl Clone for gameState {
 */
 
 fn HillClimb(initialState : gameState) -> int{
-	//set up path cost and initial states
-	let mut path_cost : int;
-	let mut availablePaths : PriorityQueue<gameState> = PriorityQueue::new();
-	availablePaths.push(initialState);
+	//minimum and active states
+	let mut minState = initialState;
+	let mut activeState = initialState;
 
+	//print the start state and its manhattan
+	println!("Initial man = {}",initialState.inverseManhattenDistance);
+	printBoard(initialState);
+
+	//begin hill climb
 	loop{
-		//no solution if queue is empty
-		if(availablePaths.len() ==0){
+		//vector of next moves
+		let mut next_states : Vec<gameState> =  generateSuccessorStates(activeState);
+
+		//find a state with a better manhattan
+		for x in range(0u, next_states.len()){
+			//print the states manhattan
+			println!("move {} man = {}",x,next_states[x].inverseManhattenDistance);
+
+			//if one of the states is better make it the new min state
+			if(next_states[x].inverseManhattenDistance >= minState.inverseManhattenDistance){
+					println!("{} is new min", x);
+					minState = next_states[x];
+			}
+		}
+		//show the move to be made
+		println!("Move");
+		printBoard(minState);
+
+		//if this is the goal leave hill climb
+		if(isGoal(minState)){
+			return minState.moves_made as int;
+		}
+
+		//if this is the same as the last active state we hit a local max
+		if(minState.state_id == activeState.state_id){
+			println!("No solution, stuck in local max.");
+			printBoard(minState);
 			return -1;
 		}
 
-		let activeState = availablePaths.pop().unwrap();
-		
-		printBoard(activeState);
+		//set the new active state
+		activeState = minState;
+
 	}
+	return 1;
 
 }
 
@@ -243,10 +273,10 @@ fn generateSuccessorStates( parentState : gameState ) ->  Vec<gameState>{
 	for x in range(0u, valid_moves.len()){
 		successor_states.push(makeMove( parentState, (valid_moves[x].val0() as int, valid_moves[x].val1() as int)));
 	}
-
-	for x in range(0u, successor_states.len()){
-		println!("{}", successor_states[x].inverseManhattenDistance);
-	}
+	//TODO: uncomment
+	// for x in range(0u, successor_states.len()){
+	// 	println!("{}", successor_states[x].inverseManhattenDistance);
+	// }
 
 	return successor_states;
 }
