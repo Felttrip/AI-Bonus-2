@@ -101,7 +101,7 @@ impl Clone for gameState {
  *  -1 indicates that no solution exists.
  */
 
-fn Astar( initialState : gameState ) -> uint{
+fn Astar( initialState : gameState ) -> int{
 
 	/* Path cost */
 	let mut path_cost : int;
@@ -116,7 +116,7 @@ fn Astar( initialState : gameState ) -> uint{
 		let mut next = pq.pop();
 		let active_state = next.unwrap();
 		if( isGoal(active_state) ){
-			return active_state.moves_made;
+			return active_state.moves_made as int;
 		}
 		explored.insert(active_state.state_id);
 		let mut next_states : Vec<gameState> =  generateSuccessorStates(active_state);
