@@ -77,7 +77,7 @@ impl Clone for gameState {
 
 	//tile that will be selected
 	let mut tileToMove :(uint,uint) = (0,0);
-	manhattenDistance(puzzle);
+	puzzle.inverseManhattenDistance = manhattenDistance(puzzle);
 
 
 	for x in range(0i, num_rand_moves as int){
@@ -113,6 +113,7 @@ fn HillClimb(initialState : gameState) -> int{
 		}
 
 		let activeState = availablePaths.pop().unwrap();
+		
 		printBoard(activeState);
 	}
 
@@ -138,6 +139,8 @@ fn Astar( initialState : gameState ) -> int{
 		let mut next = pq.pop();
 		let active_state = next.unwrap();
 		if( isGoal(active_state) ){
+			//print solved board
+			//printBoard(active_state);
 			return active_state.moves_made as int;
 		}
 		explored.insert(active_state.state_id);
@@ -228,7 +231,7 @@ fn manhattenDistance( puzzle  : gameState  ) -> int{
 	//puzzle.inverseManhattenDistance = dist * -1;
 
 	//println!("{}", dist * -1);
-	return dist;
+	return dist*-1;
 
 }
 
