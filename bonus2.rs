@@ -51,9 +51,13 @@ impl Clone for gameState {
  fn main() {
  	let mut game : gameState;
  	game = generatePuzzle();
- 	//let mut moves_needed = Astar(game);
+ 	let mut astar_moves_needed = Astar(game);
  	let mut hill_moves_needed = HillClimb(game);
-	println!("{}", hill_moves_needed);
+	println!("A Star Moves = {}", astar_moves_needed);
+	if hill_moves_needed == -1{
+		println!("Hill Climbing failed");
+	}
+	println!("Hill Moves = {}", hill_moves_needed);
 
 
  }
@@ -117,16 +121,16 @@ fn HillClimb(initialState : gameState) -> int{
 		//find a state with a better manhattan
 		for x in range(0u, next_states.len()){
 			//print the states manhattan
-			println!("move {} man = {}",x,next_states[x].inverseManhattenDistance);
+			//println!("move {} man = {}",x,next_states[x].inverseManhattenDistance);
 
 			//if one of the states is better make it the new min state
 			if(next_states[x].inverseManhattenDistance >= minState.inverseManhattenDistance){
-					println!("{} is new min", x);
+					//println!("{} is new min", x);
 					minState = next_states[x];
 			}
 		}
 		//show the move to be made
-		println!("Move");
+		//println!("Move");
 		printBoard(minState);
 
 		//if this is the goal leave hill climb
@@ -136,7 +140,7 @@ fn HillClimb(initialState : gameState) -> int{
 
 		//if this is the same as the last active state we hit a local max
 		if(minState.state_id == activeState.state_id){
-			println!("No solution, stuck in local max.");
+			//println!("No solution, stuck in local max.");
 			printBoard(minState);
 			return -1;
 		}
@@ -273,7 +277,8 @@ fn generateSuccessorStates( parentState : gameState ) ->  Vec<gameState>{
 	for x in range(0u, valid_moves.len()){
 		successor_states.push(makeMove( parentState, (valid_moves[x].val0() as int, valid_moves[x].val1() as int)));
 	}
-	//TODO: uncomment
+
+	// TODO: uncomment
 	// for x in range(0u, successor_states.len()){
 	// 	println!("{}", successor_states[x].inverseManhattenDistance);
 	// }
