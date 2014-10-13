@@ -1,10 +1,12 @@
 //libs
+extern crate time;
 use std::collections::PriorityQueue;
 use std::collections::TrieSet;
 use std::vec;
 use std::rand;
 use std::io;
 use std::num;
+use time::precise_time_s;
 
 static size: int = 3;
 
@@ -49,16 +51,40 @@ impl Clone for gameState {
  }
 
  fn main() {
- 	let mut game : gameState;
- 	game = generatePuzzle();
- 	let mut astar_moves_needed = Astar(game);
- 	let mut hill_moves_needed = HillClimb(game);
-	println!("A Star Moves = {}", astar_moves_needed);
-	if hill_moves_needed == -1{
-		println!("Hill Climbing failed");
+	println!("Algorith,Graph Cost(number of moves), Search Cost(generated nodes),ExecutionTime,Algorith,Graph Cost(number of moves), Search Cost(generated nodes),ExecutionTime,Algorith,Graph Cost(number of moves), Search Cost(generated nodes),ExecutionTime")
+	let mut fiftyStatesOfGrey: Vec<gameState> =Vec::new();
+	let mut game : gameState;
+	for x in range(0u,50u){
+		game = generatePuzzle();
+		fiftyStatesOfGrey.push(game);
 	}
-	println!("Hill Moves = {}", hill_moves_needed);
+	for x in range(0u,50u){
+		print!("A Star,");
+		Astar(fiftyStatesOfGrey[x]);
+		print!(",Hill Climb,");
+		HillClimb(fiftyStatesOfGrey[x]);
+		print!(",Simulated An,");
+		SimAn(fiftyStatesOfGrey[x]);
+		print!("\n");
+	}
+	for x in range(0u,50u){
 
+	}
+	for x in range(0u,50u){
+
+	}
+	// let mut hill_moves_needed = HillClimb(game);
+	// if hill_moves_needed == -1{
+	// 	println!("Hill Climbing failed");
+	// }
+	// println!("Hill Moves = {}", hill_moves_needed);
+	// let mut count = 0u;
+	// let mut SimAn_moves_needed = -1;
+	// game = generatePuzzle();
+	// SimAn_moves_needed = SimAn(game);
+	// count =count+1;
+	// if SimAn_moves_needed >-1{break;}
+	//println!("count = {} moves = {}",count,SimAn_moves_needed);
 
  }
 
@@ -105,13 +131,15 @@ impl Clone for gameState {
 */
 
 fn HillClimb(initialState : gameState) -> int{
+	let mut before = precise_time_s();
 	//minimum and active states
 	let mut minState = initialState;
 	let mut activeState = initialState;
+	let mut generated_states = 1u;
 
 	//print the start state and its manhattan
-	println!("Initial man = {}",initialState.inverseManhattenDistance);
-	printBoard(initialState);
+	//println!("Initial man = {}",initialState.inverseManhattenDistance);
+	//printBoard(initialState);
 
 	//begin hill climb
 	loop{
@@ -120,6 +148,7 @@ fn HillClimb(initialState : gameState) -> int{
 
 		//find a state with a better manhattan
 		for x in range(0u, next_states.len()){
+			generated_states = generated_states +1;
 			//print the states manhattan
 			//println!("move {} man = {}",x,next_states[x].inverseManhattenDistance);
 
@@ -131,17 +160,21 @@ fn HillClimb(initialState : gameState) -> int{
 		}
 		//show the move to be made
 		//println!("Move");
-		printBoard(minState);
+		//printBoard(minState);
 
 		//if this is the goal leave hill climb
 		if(isGoal(minState)){
+			let time = precise_time_s() - before;
+			//Algorith,Graph Cost(number of moves),Search Cost(generated nodes),ExecutionTime, solved
+			print!("{},{},{}",minState.moves_made,generated_states,time);
 			return minState.moves_made as int;
 		}
 
 		//if this is the same as the last active state we hit a local max
 		if(minState.state_id == activeState.state_id){
-			//println!("No solution, stuck in local max.");
-			printBoard(minState);
+			let time = precise_time_s() - before;
+			//Algorith,Graph Cost(number of moves),Search Cost(generated nodes),ExecutionTime,solved
+			print!("-1,{},{}",generated_states,time);
 			return -1;
 		}
 
@@ -149,9 +182,60 @@ fn HillClimb(initialState : gameState) -> int{
 		activeState = minState;
 
 	}
-	return 1;
+	return -1;
 
 }
+
+fn SimAn(initialState : gameState) -> int{
+	let mut before = precise_time_s();
+	let mut generated_states = 1u;
+	//minimum and active states
+	let mut minState = initialState;
+	let mut activeState = initialState;
+
+	//begin sa
+	let mut count = 0i;
+	loop{
+		//vector of next moves
+		let mut next_states : Vec<gameState> =  generateSuccessorStates(activeState);
+
+		//find a state with a better manhattan
+		for x in range(0u, next_states.len()){
+			generated_states = generated_states +1;
+			//if one of the states is better make it the new min state
+			if(next_states[x].inverseManhattenDistance >= minState.inverseManhattenDistance){
+					minState = next_states[x];
+			}
+		}
+		//if this is the goal leave sa
+		if(isGoal(minState)){
+			let time = precise_time_s() - before;
+			print!("{},{},{}",minState.moves_made,generated_states,time);
+			return minState.moves_made as int;
+		}
+
+		//if this is the same as the last active state we hit a local max
+		//because this is SA we should randomly select on of the neighbors
+		if(minState.state_id == activeState.state_id){
+			minState = next_states[rand::random::<uint>()%next_states.len()];
+		}
+
+		/* keep track of a count for time constraints, any puzzle that is not solved
+		 * in 5000 moves is considered not solvable by SA
+		 */
+		count = count+1;
+		activeState = minState;
+		if(count == 5000){
+			let time = precise_time_s() - before;
+			print!("-1,{},{}",generated_states,time);
+			return -1;
+		}
+
+	}
+	return -1;
+
+}
+
 
 /*
  *	A star returns the number of moves needed to solve the problem
@@ -159,12 +243,13 @@ fn HillClimb(initialState : gameState) -> int{
  */
 
 fn Astar( initialState : gameState ) -> int{
-
+	let mut before = precise_time_s();
 	/* Path cost */
 	let mut path_cost : int;
 	let mut pq : PriorityQueue<gameState> = PriorityQueue::new();
-    let mut explored = TrieSet::new();
+  let mut explored = TrieSet::new();
 	pq.push(initialState);
+	let mut generated_states = 1i;
 
 	loop{
 		if(pq.len() == 0){
@@ -173,8 +258,9 @@ fn Astar( initialState : gameState ) -> int{
 		let mut next = pq.pop();
 		let active_state = next.unwrap();
 		if( isGoal(active_state) ){
-			//print solved board
-			//printBoard(active_state);
+			let time = precise_time_s() - before;
+			//Algorith,Graph Cost(number of moves),Search Cost(generated nodes),ExecutionTime
+			print!("{},{},{}",active_state.moves_made,generated_states,time);
 			return active_state.moves_made as int;
 		}
 		explored.insert(active_state.state_id);
@@ -196,6 +282,7 @@ fn Astar( initialState : gameState ) -> int{
  			/*wanted to do this, and to push next_states[x] */
 			//next_states[x].inverseManhattenDistance = next_states[x].inverseManhattenDistance - next_states[x].moves_made as int;
 			pq.push(puzzle);
+			generated_states = generated_states + 1;
 		}
 	}
 }
@@ -233,12 +320,12 @@ fn isGoal( testState: gameState ) -> bool{
 				correct_tile = 0;
 			}
 			if(testState.board[x][y] != correct_tile ){
-				println!("not a goal");
+				//println!("not a goal");
 				return false;
 			}
 		}
 	}
-	println!("is a goal");
+	//println!("is a goal");
 	return true;
 }
 
