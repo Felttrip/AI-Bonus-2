@@ -67,24 +67,6 @@ impl Clone for gameState {
 		SimAn(fiftyStatesOfGrey[x]);
 		print!("\n");
 	}
-	for x in range(0u,50u){
-
-	}
-	for x in range(0u,50u){
-
-	}
-	// let mut hill_moves_needed = HillClimb(game);
-	// if hill_moves_needed == -1{
-	// 	println!("Hill Climbing failed");
-	// }
-	// println!("Hill Moves = {}", hill_moves_needed);
-	// let mut count = 0u;
-	// let mut SimAn_moves_needed = -1;
-	// game = generatePuzzle();
-	// SimAn_moves_needed = SimAn(game);
-	// count =count+1;
-	// if SimAn_moves_needed >-1{break;}
-	//println!("count = {} moves = {}",count,SimAn_moves_needed);
 
  }
 
