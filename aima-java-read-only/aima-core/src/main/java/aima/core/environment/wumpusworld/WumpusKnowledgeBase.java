@@ -246,6 +246,7 @@ public class WumpusKnowledgeBase extends KnowledgeBase {
 	}
 	
 	public boolean ask(Sentence query) {		
+		System.out.println(query);
 		return dpll.isEntailed(this, query);
 	}
 
@@ -559,14 +560,20 @@ public class WumpusKnowledgeBase extends KnowledgeBase {
 	}
 
 	public PropositionSymbol newSymbol(String prefix, int timeStep) {
-		return new PropositionSymbol(prefix+"_"+timeStep);
+		PropositionSymbol l = new PropositionSymbol(prefix+"_"+timeStep);
+	//	System.out.println(l.getSymbol());
+		return l;
 	}
 	
 	public PropositionSymbol newSymbol(String prefix, int x, int y) {
-		return new PropositionSymbol(prefix+"_"+x+"_"+y);
+		PropositionSymbol l = new PropositionSymbol(prefix+"_"+x+"_"+y);
+		//System.out.println(l.getSymbol());
+		return l;
 	}
 	
 	public PropositionSymbol newSymbol(String prefix, int timeStep, int x, int y) {
-		return newSymbol(newSymbol(prefix, timeStep).toString(), x, y);
+		PropositionSymbol l = newSymbol(newSymbol(prefix, timeStep).toString(), x, y);
+	//	System.out.println(l.getSymbol());
+		return l;
 	}
 }

@@ -83,11 +83,13 @@ public class HybridWumpusAgent extends AbstractAgent {
 
 	// persistent: KB, a knowledge base, initially the atemporal
 	// "wumpus physics"
-	private WumpusKnowledgeBase kb = null;
+	public WumpusKnowledgeBase kb = null;
 	// t, a counter, initially 0, indicating time
-	private int t = 0;
+	public int t = 0;
 	// plan, an action sequence, initially empty
-	private Queue<Action> plan = new FIFOQueue<Action>();
+	public Queue<Action> plan = new FIFOQueue<Action>();
+
+	public AgentPosition currentPos;
 
 	/**
 	 * function HYBRID-WUMPUS-AGENT(percept) returns an action<br>
@@ -101,11 +103,14 @@ public class HybridWumpusAgent extends AbstractAgent {
 	public Action execute(Percept percept) {
 
 		// TELL(KB, MAKE-PERCEPT-SENTENCE(percept, t))
+		System.out.println(percept);
 		kb.makePerceptSentence((AgentPercept) percept, t);
 		// TELL the KB the temporal "physics" sentences for time t
 		kb.tellTemporalPhysicsSentences(t);
 		
 		AgentPosition current = kb.askCurrentPosition(t);
+
+		currentPos = current;
 
 		// safe <- {[x, y] : ASK(KB, OK<sup>t</sup><sub>x,y</sub>) = true}
 		Set<Room> safe = kb.askSafeRooms(t);
@@ -153,6 +158,11 @@ public class HybridWumpusAgent extends AbstractAgent {
 			plan.addAll(planRoute(current, start, safe));
 			plan.add(new Climb());
 		}
+
+		for( Action a : plan ){
+			System.out.println(a);
+		}
+
 		// action <- POP(plan)
 		Action action = plan.pop();
 		// TELL(KB, MAKE-ACTION-SENTENCE(action, t))
@@ -160,6 +170,9 @@ public class HybridWumpusAgent extends AbstractAgent {
 		// t <- t+1
 		t = t + 1;
 		// return action
+
+		System.out.println(action);
+
 		return action;
 	}
 
@@ -331,7 +344,7 @@ public class HybridWumpusAgent extends AbstractAgent {
 	//
 	public HybridWumpusAgent() {
 		// i.e. default is a 4x4 world as depicted in figure 7.2
-		this(4);
+		this(3);
 	}
 	
 	public HybridWumpusAgent(int caveXandYDimensions) {
