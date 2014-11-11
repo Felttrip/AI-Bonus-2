@@ -103,7 +103,7 @@ public class HybridWumpusAgent extends AbstractAgent {
 	public Action execute(Percept percept) {
 
 		// TELL(KB, MAKE-PERCEPT-SENTENCE(percept, t))
-		System.out.println(percept);
+		//System.out.println(percept);
 		kb.makePerceptSentence((AgentPercept) percept, t);
 		// TELL the KB the temporal "physics" sentences for time t
 		kb.tellTemporalPhysicsSentences(t);
@@ -159,9 +159,6 @@ public class HybridWumpusAgent extends AbstractAgent {
 			plan.add(new Climb());
 		}
 
-		for( Action a : plan ){
-			System.out.println(a);
-		}
 
 		// action <- POP(plan)
 		Action action = plan.pop();
@@ -171,7 +168,6 @@ public class HybridWumpusAgent extends AbstractAgent {
 		t = t + 1;
 		// return action
 
-		System.out.println(action);
 
 		return action;
 	}

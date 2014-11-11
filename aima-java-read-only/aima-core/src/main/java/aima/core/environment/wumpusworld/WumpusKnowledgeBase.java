@@ -246,7 +246,6 @@ public class WumpusKnowledgeBase extends KnowledgeBase {
 	}
 	
 	public boolean ask(Sentence query) {		
-		System.out.println(query);
 		return dpll.isEntailed(this, query);
 	}
 
