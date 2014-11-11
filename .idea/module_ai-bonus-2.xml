@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_ai-bonus-2" default="compile.module.ai-bonus-2">
+  <dirname property="module.ai-bonus-2.basedir" file="${ant.file.module_ai-bonus-2}"/>
+  
+  <property name="module.jdk.home.ai-bonus-2" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.ai-bonus-2" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.ai-bonus-2" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.ai-bonus-2" value="-encoding UTF-8 -source 1.6 ${compiler.args}"/>
+  
+  <property name="ai-bonus-2.output.dir" value="undefined"/>
+  <property name="ai-bonus-2.testoutput.dir" value="undefined"/>
+  
+  <path id="ai-bonus-2.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="ai-bonus-2.module.production.classpath">
+    <path refid="${module.jdk.classpath.ai-bonus-2}"/>
+  </path>
+  
+  <path id="ai-bonus-2.runtime.production.module.classpath"/>
+  
+  <path id="ai-bonus-2.module.classpath">
+    <path refid="${module.jdk.classpath.ai-bonus-2}"/>
+  </path>
+  
+  <path id="ai-bonus-2.runtime.module.classpath"/>
+  
+  
+  <patternset id="excluded.from.module.ai-bonus-2">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.ai-bonus-2">
+    <patternset refid="excluded.from.module.ai-bonus-2"/>
+  </patternset>
+  
+  
+  <target name="compile.module.ai-bonus-2" depends="compile.module.ai-bonus-2.production,compile.module.ai-bonus-2.tests" description="Compile module AI-Bonus-2"/>
+  
+  <target name="compile.module.ai-bonus-2.production" depends="register.custom.compilers" description="Compile module AI-Bonus-2; production classes"/>
+  
+  <target name="compile.module.ai-bonus-2.tests" depends="register.custom.compilers,compile.module.ai-bonus-2.production" description="compile module AI-Bonus-2; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.ai-bonus-2" description="cleanup module">
+    <delete dir="${ai-bonus-2.output.dir}"/>
+    <delete dir="${ai-bonus-2.testoutput.dir}"/>
+  </target>
+</project>
