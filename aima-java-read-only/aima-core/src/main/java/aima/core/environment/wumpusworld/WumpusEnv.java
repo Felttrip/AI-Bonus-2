@@ -58,5 +58,14 @@ public class WumpusEnv {
         return agent;
     }
 
+    public HybridWumpusAgent getPerceptForAPos(int x, int y){
+        boolean stench = (map[x][y][0]==1)?true:false;
+        boolean breeze = (map[x][y][2]==1)?true:false;
+        boolean glitter = (map[x][y][3]==1)?true:false;
+        boolean bump = false;
+        boolean scream = false;
+        return new AgentPercept(stench, breeze, glitter, bump, scream)
+    }
+
 
 }
