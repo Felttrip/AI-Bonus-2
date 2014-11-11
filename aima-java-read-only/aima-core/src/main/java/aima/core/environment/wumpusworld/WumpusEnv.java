@@ -40,6 +40,20 @@ public class WumpusEnv {
         }
     }
 
+    public void print_map(){
+
+        for( int i = 0; i <= 3; ++i ){
+            for (int j = 0; j <=3; ++j){
+                    System.out.println("Location: ( " + i + "," + j + ")\n" +
+                            "Stench: " + map[i][j][0] + "\n" +
+                            "Breeze:  " + map[i][j][1] + "\n" +
+                            "Gold: " + map[i][j][2] + "\n");
+                }
+            }
+    }
+
+
+
     public HybridWumpusAgent getAgent(){
         return agent;
     }
