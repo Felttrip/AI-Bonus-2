@@ -14,6 +14,9 @@ import aima.core.environment.wumpusworld.action.Forward;
 import aima.core.environment.wumpusworld.action.Grab;
 import aima.core.environment.wumpusworld.action.Shoot;
 import aima.core.environment.wumpusworld.action.TurnLeft;
+import aima.core.logic.propositional.parsing.ast.ComplexSentence;
+import aima.core.logic.propositional.parsing.ast.Connective;
+import aima.core.logic.propositional.parsing.ast.Sentence;
 import aima.core.search.framework.GoalTest;
 import aima.core.search.framework.GraphSearch;
 import aima.core.search.framework.HeuristicFunction;
@@ -111,9 +114,71 @@ public class HybridWumpusAgent extends AbstractAgent {
 		AgentPosition current = kb.askCurrentPosition(t);
 
 		currentPos = current;
+		Set<Room> safe;
 
-		// safe <- {[x, y] : ASK(KB, OK<sup>t</sup><sub>x,y</sub>) = true}
-		Set<Room> safe = kb.askSafeRooms(t);
+		if( t == 0 ){
+			System.out.println("--------Conclusion of 7.3 A-----------------");
+			// safe <- {[x, y] : ASK(KB, OK<sup>t</sup><sub>x,y</sub>) = true}
+			 safe = kb.askSafeRooms(t);
+			System.out.println("We ask the knowledge base if each room is safe.\n" +
+					 			"When the agent begins, it can infer that the rooms of 7.3A are safe" +
+								" because there is no breeze or stench in 1,1 ");
+
+			System.out.println("Therefore OK[1,1], OK[2,1], OK[1,2]");
+
+			System.out.println("--------------------------------------------");
+
+		}
+		else{
+			safe = kb.askSafeRooms(t);
+		}
+
+		if( t == 2  ) {
+
+			System.out.println("---------- Conclusion of 7.3 B ------------");
+
+			System.out.println("Asking: " + this.kb.newSymbol(this.kb.STENCH, 2, 1));
+			System.out.println("Result: " + this.kb.ask(this.kb.newSymbol(this.kb.STENCH, 2, 1)));
+
+			System.out.println("Asking: " + this.kb.newSymbol(this.kb.BREEZE, 2, 1));
+			System.out.println("Result: " + this.kb.ask(this.kb.newSymbol(this.kb.BREEZE, 2, 1)));
+
+			System.out.println("Asking: " + this.kb.newSymbol(this.kb.OK_TO_MOVE_INTO, this.t, 2, 2).toString());
+			System.out.println("Result: " + this.kb.ask(this.kb.newSymbol(this.kb.OK_TO_MOVE_INTO, this.t, 2, 2)));
+
+			System.out.println("Asking: " + this.kb.newSymbol(this.kb.OK_TO_MOVE_INTO, this.t, 3, 1).toString());
+			System.out.println("Result: " + this.kb.ask(this.kb.newSymbol(this.kb.OK_TO_MOVE_INTO, this.t, 3, 1)));
+
+			System.out.println("Since we know that a breeze exists in 2,1 and we do not know that 3,1 is safe, or that 2,2 is safe," +
+					"then there must be a pit in one of those squares.\n Also, since we know that there isn't a stench in 2,1, then the" +
+					"reason for the tiles to be potentially unsafe is because the location of the pit is unknown");
+
+			System.out.println("Therefore, P[2,2] ?, P[3,1] ?");
+
+			System.out.println("-------------------------------------------");
+
+		}
+
+		if( t == 6 ){
+			System.out.println("--------Conclusion of 7.4 A-----------------");
+
+			System.out.println("Asking the KB: " + kb.newSymbol(kb.WUMPUS,1, 3));
+			System.out.println("Result: " + kb.ask(kb.newSymbol(kb.WUMPUS,1,3)));
+
+			System.out.println("Asking the KB: " + kb.newSymbol(kb.PIT,3,1));
+			System.out.println("Result: " + kb.ask(kb.newSymbol(kb.PIT, 3, 1)));
+
+			System.out.println("Asking the KB: " + kb.newSymbol(kb.OK_TO_MOVE_INTO, 2, 2));
+			System.out.println("Result: " + kb.ask(kb.newSymbol(kb.OK_TO_MOVE_INTO, t, 2, 2)));
+
+			System.out.println("If true, then this will mean that a Wumpus resides in 1,3 thus that conclusion is derived.\n" +
+							   "We have also shown that there is a pit in 3,1 and that 2,2 is safe. ");
+
+			System.out.println("Therefore W[1,3], P[3,1], OK[2,2]");
+
+			System.out.println("-------------------------------------------");
+		}
+
 
 		// if ASK(KB, Glitter<sup>t</sup>) = true then		
 		if (kb.askGlitter(t)) {
@@ -162,6 +227,27 @@ public class HybridWumpusAgent extends AbstractAgent {
 
 		// action <- POP(plan)
 		Action action = plan.pop();
+//
+//		System.out.println("########### Percept  ############");
+//
+//		System.out.println(percept.toString());
+//
+//		System.out.println("########### End Percept  ############");
+//
+//
+//		System.out.println("########### Action  ############");
+//		System.out.println(action.toString());
+//		System.out.println("############ End Action  ###########");
+
+//		System.out.println("########### Kb After Action  ############");
+//
+//		for( Sentence str : kb.getSentences()){
+//			System.out.println(str);
+//		}
+//
+//		System.out.println("########### End Kb After Action  ############");
+
+
 		// TELL(KB, MAKE-ACTION-SENTENCE(action, t))
 		kb.makeActionSentence(action, t);
 		// t <- t+1

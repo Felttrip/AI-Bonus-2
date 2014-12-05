@@ -177,6 +177,10 @@ public class WumpusKnowledgeBase extends KnowledgeBase {
 			for (int y = 1; y <= getCaveYDimension(); y++) {
 				if (ask(newSymbol(OK_TO_MOVE_INTO, t, x, y))) {
 					safe.add(new Room(x, y));
+					if( t == 0 ) {
+						System.out.println("Is it: " + newSymbol(OK_TO_MOVE_INTO, t, x, y).toString());
+						System.out.println(newSymbol(OK_TO_MOVE_INTO, t, x, y).toString());
+					}
 				}
 			}
 		}
@@ -235,9 +239,12 @@ public class WumpusKnowledgeBase extends KnowledgeBase {
 				if (!ask(new ComplexSentence(Connective.NOT, newSymbol(OK_TO_MOVE_INTO, t, x, y)))) {
 					notUnsafe.add(new Room(x, y));
 				}
+				System.out.println("-----------------");
+				System.out.println(new ComplexSentence(Connective.NOT, newSymbol(OK_TO_MOVE_INTO, t, x, y)));
+				System.out.println("-----------------");
 			}
 		}
-		
+
 		return notUnsafe;
 	}
 	

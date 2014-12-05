@@ -3,7 +3,10 @@ package aima.gui.demo;
 import aima.core.agent.*;
 import aima.core.environment.wumpusworld.WumpusCave;
 import aima.core.environment.wumpusworld.*;
+import aima.core.logic.propositional.parsing.ast.ComplexSentence;
 import aima.core.logic.propositional.parsing.ast.Sentence;
+import aima.core.logic.propositional.parsing.ast.Connective;
+
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,66 +38,53 @@ public class WumpusDemo {
         System.out.println("-----------------End Map----------------");
 
 
-        /* Print out the init state of the KB */
-        System.out.println("KB Prior To First Move");
-        System.out.println("---------------------------------");
+//        /* Print out the init state of the KB */
+//        System.out.println("KB Prior To First Move");
+//        System.out.println("---------------------------------");
+//
+//        for( Sentence str : agent.kb.getSentences()){
+//            System.out.println(str);
+//        }
+//
+//        System.out.println("-------------End Kb Prior To First Move---------------");
 
-        for( Sentence str : agent.kb.getSentences()){
-            System.out.println(str);
-        }
 
-        System.out.println("-------------End Kb Prior To First Move---------------");
-
-        /* Start in 1,1 with the percepts all set to false as in the book */
-        System.out.println("--------First Percept and Action Sequence-----------");
-        System.out.println("---------------------------------");
-        System.out.println(new AgentPercept(false,false,false,false,false).toString());
         Action pos =  agent.execute(new AgentPercept(false, false, false, false, false));
-        System.out.println(pos.toString());
-        System.out.println("----------End Agent First Percept and Action---------\n\n");
-
-
-
-        System.out.println("\n\n---------KB After First Move-----------");
-        System.out.println("-----------------------------------");
-        for( Sentence str : agent.kb.getSentences()){
-            System.out.println(str);
-        }
-        System.out.println("-------------End Kb After First Move---------------");
 
         Pattern p = Pattern.compile("[0-9],[0-9]");
         Matcher m = p.matcher(pos.toString());
-        int num_moves = 3;
+        int num_moves = 7;
         String [] coords = {"2,1"};
         boolean did_change = false;
 
         /* Make the correct number of moves through the world */
         while(num_moves > 0){
+
+//            System.out.print(
+//                    new ComplexSentence(agent.kb.newSymbol(agent.kb.BREEZE, 2, 1),
+//                            Connective.AND,
+//                            new ComplexSentence(
+//                                    new ComplexSentence(Connective.NOT, agent.kb.newSymbol(agent.kb.OK_TO_MOVE_INTO, 3, 1)), Connective.AND
+//                                    , new ComplexSentence(Connective.NOT, agent.kb.newSymbol(agent.kb.OK_TO_MOVE_INTO, 2, 2)))).toString()
+//            );
+
+
+//                //3,1
+//                new ComplexSentence(new ComplexSentence(Connective.NOT, agent.kb.newSymbol(agent.kb.WUMPUS,agent.t,3,1)),Connective.AND,
+//                        new ComplexSentence(Connective.NOT, agent.kb.newSymbol(agent.kb.OK_TO_MOVE_INTO,agent.t,3,1)));
+//                //2,2
+//                new ComplexSentence(new ComplexSentence(Connective.NOT, agent.kb.newSymbol(agent.kb.WUMPUS,agent.t,2,2)),Connective.AND,
+//                        new ComplexSentence(Connective.NOT, agent.kb.newSymbol(agent.kb.OK_TO_MOVE_INTO,agent.t,2,2)));
+
+
             if(m.find()) {
                  coords = m.group().split(",");
             }
-            System.out.println("\n-----------Next Percept and action ------------");
-            AgentPercept next =  env.getPerceptForAPos(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]));
 
-            for( String str : coords ){
-               System.out.println("##############");
-                System.out.println(str);
-                System.out.println("##############");
-
-            }
-
+            AgentPercept next =  env.getPerceptForAPos(Integer.parseInt(coords[1]) - 1, Integer.parseInt(coords[0] ) - 1);
             pos = agent.execute(next);
-            System.out.println(next.toString());
-            System.out.println(pos.toString());
-            System.out.println("-----------End Next Percept and action --------\n");
 
-            System.out.println("-----------Next Associated KB (percept above) ------------");
 
-            for( Sentence str : agent.kb.getSentences()){
-                System.out.println(str);
-            }
-
-            System.out.println("-----------End Associated KB ------------------");
             num_moves--;
             m = p.matcher(pos.toString());
         }
